@@ -1,0 +1,211 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2512
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-Bold;\f1\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red220\green161\blue13;}
+{\*\expandedcolortbl;;\cssrgb\c89412\c68627\c3922;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab560
+\pard\pardeftab560\partightenfactor0
+
+\f0\b\fs34 \cf0 Arch Linux Commands for installation\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f1\b0\fs24 \cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 loadkeys es\
+ip link\
+Ip link set wlan0 up\
+Ip link\
+iwlist wlan0 scan\
+\
+wifi sin pass				   con pass\
+Iwconfig wlan0 essid wifiname key s:pass\
+wifi con pass wpa\
+wpa passphrase wifiname pass > /etc/wifi\
+cat /etc/wifi\
+wpa supplicant -B -I wlan0 -D wext -c /etc/wifi\
+dhclient\
+ping google.com\
+fdisk -l\
+### particiones # fdisk\
+pacstrap /mnt base linux linux-firmware grub networkmanager dhcpcd  mettle wpasupplicant dialog nano\
+###genfstab\
+### arch-chroot\
+### zona # horaria ln -sf\
+### reloj # hwclock\
+echo \'93LANG=es_MX.UTF8\'94 > /etc/locale.conf\
+echo \'93KEYMAP=es\'94 > /etc/vconsole.conf\
+echo \'93Arch-Linux\'94 > /etc/hostname\
+echo \'93127.0.0.1	localhost\'94 > /etc/host\
+nano /etc/locale.gen\
+	descomentar:
+\f0\b   
+\f1\b0 es_MX.UTF-8 UTF\
+ locale-gen\
+passwd\
+useradd -m mario\
+passwd mario\
+grub-install /dev/sda\
+grub-mkconfig -o /boot/grub/grub.cfg\
+mkinitcpio -P\
+exit\
+reboot now\
+\
+su\
+systemctl start NetworkManager.service\
+systemctl enable NetworkManager.service\
+ip link\
+ip link set wlp0s11u1 up\
+nmcli dev wifi connect wifiName password pass\
+\
+pacman -S xorg-server xorg-xinit sddm xf86-video-nowveau plasma\
+\
+systemctl enable sddm.service\
+systemctl start sddm.service\
+\
+\
+\
+##############################################################\
+\
+loadkeys es 							configurar teclado en espa\'f1ol\
+ls /usr/share/kbd/keymaps/**/*.map.gz		mirar configuraci\'f3n de teclado\
+\
+ls /sys/firmware/efi/efivars				verificar si es UEFI, si no existe puede iniciarse en modo BIOS o CMS\
+\
+ip link\
+ping {\field{\*\fldinst{HYPERLINK "http://archlinux.org"}}{\fldrslt \cf2 archlinux.org}}\
+\
+timedatectl set-ntp true					verifica que el sistema de reloj sea exacto\
+timedatectl status						verificar la fecha y hora\
+\
+lsblk  								ver particiones\
+fdisk -l								verificar discos disponibles\
+fdisk /dev/sda							entramos prom de fdisk para crear particiones\
+	o\
+cfdisk  								entramos a cfdisk para crear particiones\
+\
+Partici\'f3n root\
+	n \'96 Crear partici\'f3n primaria (podemos tener m\'e1ximo 4 creadas)\
+	3 enter\
+			partici\'f3n primaria\
+			numero de partici\'f3n\
+			desde el siguiente sector disponible\
+	+20G tama\'f1o partici\'f3n\
+\
+Partici\'f3n swap\
+	n \'96 Crear partici\'f3n primaria (podemos tener m\'e1ximo 4 creadas)\
+	3 enter\
+			partici\'f3n primaria\
+			numero de partici\'f3n\
+			desde el siguiente sector disponible\
+	+2G tama\'f1o partici\'f3n\
+\
+Partici\'f3n home\
+	n \'96 Crear partici\'f3n primaria (podemos tener m\'e1ximo 4 creadas)\
+	4 enter\
+			partici\'f3n primaria\
+			numero de partici\'f3n\
+			desde el siguiente sector disponible	\
+			tomar tama\'f1o restante\
+\
+p \'96 Imprimir particiones creadas\
+t \'96 Tipo de partici\'f3n\
+	2 \'96 Seleccionamos la partici\'f3n (en tu caso este podr\'eda ser otro numero)\
+	L - ver el listado de c\'f3digos\
+	82 \'96 c\'f3digo de Linux Swap\
+p \'96 Imprimir particiones creadas\
+W - Salir guardando cambios\
+\
+fdisk -l								verificar particiones correctas\
+mkfs.ext4 /dev/sda1					formatea partici\'f3n root\
+mkfs.ext4 /dev/sda3					formatea partici\'f3n home\
+mkswap /dev/sda2						formata particion swap\
+swapon /dev/sda2						activa memoria virtual particion swap\
+free									Verifica activaci\'f3n swap\
+mount /dev/sda1 /mnt					Monta partition root\
+mkdir /mnt/home						Crea directorio para home\
+mount /dev/sda3 /mnt/home				Monta partici\'f3n home\
+df -h									Verifica particiones montadas\
+\
+# nano /etc/pacman.d/mirrorlist 			Lista mirror de servidores\
+\
+pacstrap /mnt base linux linux-firmware\
+pacstrap /mnt base base-devel			Descarga e instalaci\'f3n de base de Arch\
+\
+genfstab -U /mnt >> /mnt/etc/fstab		generar el fichero fstab para que el OS sepa \
+									como montar los filesystem al hacer boot\
+arch-chroot /mnt						activa los filesystem\
+ls\
+df -h\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 ls /usr/share/zoneinfo/America			muestra listado de pa\'edses y zona horaria\
+ln -sf /usr/share/zoneinfo/America/Mexico_City/etc/localtime cambio regi\'f3n y pa\'eds\
+hwclock --systohc --utc					Sincroniza fecha y hora\
+date									Verifica la fecha y hora\
+\
+nano \'97version\
+pacman -S nano\
+nano /etc/locale.gen					editar el fichero locale.gen
+\f0\b \
+	
+\f1\b0 descomentar:
+\f0\b   
+\f1\b0 es_MX.UTF-8 UTF\
+locale-gen							activamos los cambios\
+echo LANG=es_MX.UTF-8 > /etc/locale.conf variable de ambiente\
+export LANG=es_MX.UTF-8				activamos variable\
+\
+Para red con cable\
+nano /etc/hostname					editar archivo hostname\
+	poner cualquier nombre por ejemplo: arch-linux\
+nano /etc/hosts\
+	escribir:\
+	127.0.0.1	localhost\
+	::1		localhost\
+	127.0.0.1	arch-linux.localdomain	arch-linux\
+ip link								verificar tarjeta de red detectada\
+									vemos la tarjeta reconocida enp0s3\
+nano /etc/systemd/network/enp0s3.network	editar archivo \
+	escribir:\
+	[Match]\
+	name=en*\
+	[Network]\
+	DHCP=yes\
+systemctl restart systemd-networkd		reinicia servicio systemd-netword\
+systemctl enable systemd-networkd		habilita servicio systemd-netword\
+nano /etc/resolv.conf					configuramos DNS para red\
+	escribir:\
+	nameserver 1.1.1.1\
+	nameserver 8.8.8.8\
+ping {\field{\*\fldinst{HYPERLINK "http://google.com"}}{\fldrslt \cf2 google.com}}						probar conectividad y salida a internet\
+\
+pacman -S grub						descarga el paquete para arranque grub\
+grub-install /dev/sda					instala en el primer sector de sda el grub\
+grub-mkconfig -o /boot/grub/grub.cfg\
+##Para BIOS UEFI partici\'f3n extra en la primera sda1 tipo vfat de 500mb para instalar ah\'ed grub\
+\
+nano /etc/fstab						verificar que se encuentren 3 particiones\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 passwd root							creamos contrase\'f1a usuario root\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 pacman -Syu							actualiza Arch-Linux\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 pacman -S xorg-server					instala X para entorno grafico\
+pacman -S gnome gnome-extra			instala escritorio Gnome\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 systemctl enable gdm					habilita servicio gdm\
+#systemctl start gdm					inicia servicio gdm\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 exit									salir de usuario\
+reboot								reinicia equipo	}
